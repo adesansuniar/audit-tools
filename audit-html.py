@@ -6,8 +6,7 @@ TIMEOUT = 5
 
 def cek_url(slug):
     try:
-        # Jangan tambahkan ".html" karena slug sudah lengkap
-        url = f"{BASE_URL}{slug}"
+        url = f"{BASE_URL}{slug}"  # Tidak perlu tambah .html
         resp = requests.head(url, timeout=TIMEOUT)
         return resp.status_code
     except Exception as e:
@@ -23,14 +22,6 @@ def audit(file_list="daftar-html.txt", log_file="audit-log.txt"):
 
     with open(log_file, "w") as out:
         for slug in slugs:
-            # Hilangkan ekstensi ganda bila ada
-            if slug.endswith(".html.html"):
-                slug = slug.replace(".html.html", ".html")
-            elif slug.endswith(".html.html".lower()):
-                slug = slug.replace(".html.html".lower(), ".html")
-            elif slug.endswith(".html.html".upper()):
-                slug = slug.replace(".html.html".upper(), ".html")
-
             status = cek_url(slug)
             log_line = f"🔎 {slug} => {status}"
             print(log_line)
