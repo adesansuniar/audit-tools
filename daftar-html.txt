@@ -1,5 +1,5 @@
-archive.html
-akun.html
+archive
+akun
 daftar-artikel-filter.html
 index.html
 jual-beli.html
