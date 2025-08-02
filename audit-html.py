@@ -2,34 +2,36 @@ import requests
 import os
 
 BASE_URL = "https://adesansuniar.github.io/blog-adesansuniar/"
-EXT = ".html"
 TIMEOUT = 5
 
-def cek_file(slug):
-    """Cek apakah file HTML tersedia secara online."""
+def final_url(slug):
+    return slug if slug.endswith(".html") else slug + ".html"
+
+def cek_file(slug, folder="."):
+    return os.path.exists(os.path.join(folder, final_url(slug)))
+
+def cek_url(slug):
     try:
-        resp = requests.head(f"{BASE_URL}{slug}{EXT}", timeout=TIMEOUT)
+        url = f"{BASE_URL}{final_url(slug)}"
+        resp = requests.head(url, timeout=TIMEOUT)
         return resp.status_code
     except Exception as e:
         return f"ERROR: {str(e)}"
 
-def audit(file_list_path="audit/daftar-html.txt", log_file_path="audit/audit-log.txt"):
-    if not os.path.exists(file_list_path):
-        print(f"[!] File list tidak ditemukan: {file_list_path}")
+def audit(file_list="daftar-html.txt", folder_html=".", log_file="audit-log.txt"):
+    if not os.path.exists(file_list):
+        print(f"❌ File daftar tidak ditemukan: {file_list}")
         return
 
-    with open(file_list_path, "r") as f:
+    with open(file_list, "r") as f:
         slugs = [line.strip() for line in f if line.strip()]
 
-    log_lines = []
-    for slug in slugs:
-        status = cek_file(slug)
-        log_lines.append(f"{slug}{EXT}: {status}")
-        print(f"🔎 {slug}{EXT} => {status}")
-
-    with open(log_file_path, "w") as f:
-        f.write("\n".join(log_lines))
-    print(f"\n✅ Audit selesai. Hasil disimpan ke {log_file_path}")
+    with open(log_file, "w") as out:
+        for slug in slugs:
+            status = cek_url(slug)
+            log_line = f"🔎 {final_url(slug)} => {status}"
+            print(log_line)
+            out.write(log_line + "\n")
 
 if __name__ == "__main__":
     audit()
