@@ -3,8 +3,8 @@ import os
 
 BASE_URL = "https://adesansuniar.github.io/blog-adesansuniar/"
 TIMEOUT = 5
-DAFTAR_FILE = "audit/daftar-html.txt"
-LOG_FILE = "audit/audit-log.txt"
+DAFTAR_FILE = "daftar-html.txt"          # Karena berada di root repo
+LOG_FILE = "audit/audit-log.txt"         # Hasil tetap disimpan di folder audit/
 
 def cek_file_lokal(filepath):
     return os.path.exists(filepath)
