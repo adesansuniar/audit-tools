@@ -1,0 +1,8 @@
+archive.html|public
+akun.html|public
+daftar-artikel-filter.html|public
+index.html|public
+jual-beli.html|public
+kategori.html|public
+
+
