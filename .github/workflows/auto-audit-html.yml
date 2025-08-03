@@ -24,6 +24,9 @@ jobs:
       - name: Jalankan Audit
         run: python audit/audit-html.py
 
+      - name: Generate Rekap Markdown
+        run: python audit/generate-markdown.py  # opsional jika kamu ingin hasil tabel
+
       - name: Konfigurasi Git
         run: |
           git config user.name "github-actions[bot]"
@@ -32,6 +35,7 @@ jobs:
       - name: Commit dan Push Hasil Audit
         run: |
           git add audit/audit-log.txt
-          git commit -m "🔍 Auto audit: update audit-log.txt"
+          git add audit/audit-rekap.md  # ditambahkan jika ada file rekap
+          git commit -m "🔍 Auto audit: update audit log dan rekap"
           git push
         continue-on-error: true
