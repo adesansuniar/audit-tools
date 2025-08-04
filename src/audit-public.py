@@ -1,10 +1,11 @@
+import os
 import requests
+import subprocess
+from datetime import datetime
 from urllib.parse import urljoin
 
 BASE_URL = "https://adesansuniar.github.io/blog-adesansuniar/"
 TIMEOUT = 5
-SOURCE_FILE = "daftar-public.txt"
-LOG_FILE = "hasil-public-log.txt"
 
 def cek_url_online(path):
     try:
@@ -14,15 +15,17 @@ def cek_url_online(path):
     except Exception as e:
         return f"ERROR: {str(e)}"
 
-def audit_public():
-    if not path_exists(SOURCE_FILE):
-        print(f"❌ File tidak ditemukan: {SOURCE_FILE}")
-        return
+def path_exists(p): return os.path.exists(p)
+
+def audit_slug_file(source_file, log_file):
+    if not path_exists(source_file):
+        print(f"❌ File tidak ditemukan: {source_file}")
+        return []
 
     total_ok, total_404, total_err = 0, 0, 0
     hasil = []
 
-    with open(SOURCE_FILE, "r") as f:
+    with open(source_file, "r") as f:
         for line in f:
             if "|" not in line:
                 continue
@@ -40,13 +43,25 @@ def audit_public():
                 total_err += 1
 
     hasil.append(f"\n🔎 REKAP: {total_ok} OK | {total_404} 404 | {total_err} Error")
-    print("\n".join(hasil))
 
-    with open(LOG_FILE, "w") as log:
+    with open(log_file, "w") as log:
         log.write("\n".join(hasil))
 
-def path_exists(p): return os.path.exists(p)
+    print("\n".join(hasil))
+    return hasil
+
+def git_push(file_path):
+    subprocess.run(["git", "add", file_path])
+    subprocess.run(["git", "commit", "-m", f"Auto audit log {datetime.now().isoformat()}"])
+    subprocess.run(["git", "push"])
+
+def main():
+    SOURCE_FILE = "daftar-public.txt"
+    LOG_FILE = "hasil-public-log.txt"
+    hasil = audit_slug_file(SOURCE_FILE, LOG_FILE)
+
+    if hasil:  # Kalau hasil tidak kosong
+        git_push(LOG_FILE)
 
 if __name__ == "__main__":
-    audit_public()
-        
+    main()
