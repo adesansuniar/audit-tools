@@ -56,7 +56,8 @@ def git_push(file_path):
     subprocess.run(["git", "push"])
 
 def main():
-    SOURCE_FILE = "daftar-public.txt"
+    SOURCE_FILE = "audit/daftar-public-fixed.txt"
+
     LOG_FILE = "hasil-public-log.txt"
     hasil = audit_slug_file(SOURCE_FILE, LOG_FILE)
 
@@ -65,3 +66,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
