@@ -1,3 +1,11 @@
-index.html ✅ Online
-kategori.html ❌ 404 Not Found
-tentang.html ⚠️ Timeout
+import subprocess
+from datetime import datetime
+
+with open("audit-log.txt", "w") as log:
+    log.write("index.html ✅ Online\n")
+    log.write("kategori.html ❌ 404 Not Found\n")
+    log.write("tentang.html ⚠️ Timeout\n")
+
+subprocess.run(["git", "add", "audit-log.txt"])
+subprocess.run(["git", "commit", "-m", f"Auto audit log {datetime.now().isoformat()}"])
+subprocess.run(["git", "push"])
