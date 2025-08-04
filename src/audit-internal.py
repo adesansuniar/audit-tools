@@ -1,4 +1,6 @@
 import os
+import subprocess
+from datetime import datetime
 
 SOURCE_FILE = "daftar-internal.txt"
 LOG_FILE = "hasil-internal-log.txt"
@@ -30,6 +32,11 @@ def audit_internal():
 
     with open(LOG_FILE, "w") as log:
         log.write("\n".join(hasil))
+
+    # 🚀 Commit & Push ke GitHub
+    subprocess.run(["git", "add", LOG_FILE])
+    subprocess.run(["git", "commit", "-m", f"Audit internal log {datetime.now().isoformat()}"])
+    subprocess.run(["git", "push"])
 
 if __name__ == "__main__":
     audit_internal()
