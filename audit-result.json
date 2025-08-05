@@ -1,0 +1,22 @@
+{
+  "audit_date": "2025-08-05",
+  "summary": {
+    "ok": 1,
+    "not_found": 1,
+    "error": 1
+  },
+  "details": [
+    {
+      "slug": "index.html",
+      "status": "✅ Online"
+    },
+    {
+      "slug": "kategori.html",
+      "status": "❌ 404 Not Found"
+    },
+    {
+      "slug": "tentang.html",
+      "status": "⚠️ Timeout"
+    }
+  ]
+}
