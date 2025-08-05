@@ -1,22 +1,11 @@
-from datetime import datetime
-import json
+from utils import read_audit_log, export_to_json
 
-result = {
-    "audit_date": datetime.now().strftime("%Y-%m-%d"),
-    "summary": {"ok": 0, "not_found": 0, "error": 0},
-    "details": []
-}
+LOG_PATH = "audit/audit-log.txt"
+OUTPUT_PATH = "audit/audit-result.json"
 
-with open("audit/audit-log.txt") as log:
-    for line in log:
-        slug, status = line.strip().split(" ", 1)
-        result["details"].append({"slug": slug, "status": status})
-        if "✅" in status:
-            result["summary"]["ok"] += 1
-        elif "❌" in status:
-            result["summary"]["not_found"] += 1
-        else:
-            result["summary"]["error"] += 1
-
-with open("audit-result.json", "w") as out:
-    json.dump(result, out, indent=2)
+entries = read_audit_log(LOG_PATH)
+if not entries:
+    print("⚠️ Audit log kosong atau tidak valid.")
+else:
+    export_to_json(entries, OUTPUT_PATH)
+    print(f"✅ File JSON berhasil dibuat: {OUTPUT_PATH}")
