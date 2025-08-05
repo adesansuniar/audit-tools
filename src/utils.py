@@ -1,31 +1,35 @@
 import re
+import json
 from pathlib import Path
+from datetime import datetime
 
-# 🔎 Validasi dan parsing log line
+# ✅ Pemetaan status dan label
+STATUS_MAP = {
+    "✅": "Online",
+    "❌": "404 Not Found",
+    "⚠️": "Timeout / Error",
+    "OK": "Online",
+    "ERROR": "Timeout / Error"
+}
+
+# 🔎 Parsing log line dengan normalisasi spasi
 def parse_log_line(line):
-    # Format: nama_file STATUS KETERANGAN
-    match = re.match(r'^(\S+)\s+(✅|❌|⚠️)\s+(.*)$', line.strip())
+    line = re.sub(r'\s{2,}', ' ', line.strip())
+    match = re.match(r'^(\S+)\s+(✅|❌|⚠️|OK|ERROR)\s+(.*)$', line)
     if match:
         return {
             "slug": match.group(1),
             "status": match.group(2),
+            "label": STATUS_MAP.get(match.group(2), "Unknown"),
             "keterangan": match.group(3)
         }
     return None
 
-# 🔁 Konversi emoji ke label status
-def status_label(code):
-    return {
-        "✅": "Online",
-        "❌": "404 Not Found",
-        "⚠️": "Timeout / Error"
-    }.get(code, "Unknown")
-
-# 🚦 Filter hanya slug yang valid
+# 🚦 Validasi slug (bisa diperluas ke prefix folder tertentu)
 def is_valid_slug(slug):
     return re.match(r'^[\w\-/]+\.html$', slug) is not None
 
-# 📄 Baca file log dan parsing seluruh isi
+# 📄 Baca dan parsing log audit
 def read_audit_log(log_path):
     entries = []
     if Path(log_path).is_file():
@@ -36,10 +40,20 @@ def read_audit_log(log_path):
                     entries.append(entry)
     return entries
 
-# 🧮 Rekap statistik status
+# 📊 Rekap status keseluruhan
 def summarize_status(entries):
-    summary = {"✅": 0, "❌": 0, "⚠️": 0}
+    summary = {emoji: 0 for emoji in STATUS_MAP if emoji in ["✅", "❌", "⚠️"]}
     for e in entries:
         if e["status"] in summary:
             summary[e["status"]] += 1
     return summary
+
+# 📦 Ekspor hasil audit ke JSON
+def export_to_json(entries, path):
+    result = {
+        "audit_date": datetime.now().strftime("%Y-%m-%d"),
+        "summary": summarize_status(entries),
+        "details": entries
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2, ensure_ascii=False)
