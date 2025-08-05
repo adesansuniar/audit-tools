@@ -1,41 +1,57 @@
-name: Audit HTML Pages
+name: 🧪 Auto Audit Internal & Public
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *'  # Setiap hari jam 10:00 WIB (03:00 UTC)
+    - cron: '0 3 * * *'  # Setiap hari jam 10:00 WIB
 
 jobs:
   audit-html:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: 📚 Install Dependencies
         run: pip install requests
 
-      - name: Jalankan Audit
-        run: python audit/audit-html.py
+      - name: 🔍 Audit Internal Pages
+        run: python audit/audit-internal.py
+        continue-on-error: true
 
-      - name: Generate Rekap Markdown
-        run: python audit/generate-markdown.py  # opsional jika kamu ingin hasil tabel
+      - name: 🔍 Audit Public Pages
+        run: python audit/audit-public.py
+        continue-on-error: true
 
-      - name: Konfigurasi Git
+      - name: 📊 Generate Rekap (Opsional)
+        run: python audit/generate-markdown.py
+        continue-on-error: true
+
+      - name: ⚙️ Git Config
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit dan Push Hasil Audit
+      - name: 📥 Commit & Push Results
         run: |
-          git add audit/audit-log.txt
-          git add audit/audit-rekap.md  # ditambahkan jika ada file rekap
-          git commit -m "🔍 Auto audit: update audit log dan rekap"
+          git add audit/audit-log.txt || echo "No internal log"
+          git add audit/audit-log-public.txt || echo "No public log"
+          git add audit/audit-rekap.md || echo "No markdown rekap"
+          git commit -m "🧪 Audit internal & public - daily log update" || echo "Nothing to commit"
           git push
         continue-on-error: true
+
+      - name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: |
+            audit/audit-log.txt
+            audit/audit-log-public.txt
+            audit/audit-rekap.md
